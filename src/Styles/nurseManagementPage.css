@@ -1,0 +1,30 @@
+.page-header {
+  background-color: #f0f2f5;
+  padding: 10px;
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.page-title {
+  margin-bottom: 5px;
+}
+
+.page-subtitle {
+  color: #666;
+}
+.nurse-card {
+  width: 80%;
+  margin: 0 auto;
+  padding: 20px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.nurse-table {
+  padding: 40px;
+}
+
+.search-input {
+  margin-bottom: 20px;
+  width: 200px;
+  height: 30px;
+}
