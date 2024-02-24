@@ -11,25 +11,24 @@ const NurseTable = () => {
     fetchNurseData();
   }, []);
 
-  const fetchNurseData = () => {
-    setLoading(true);
-    axios
-      .get("http://localhost:9000/nurse")
-      .then((response) => {
-        setLoading(false);
-        if (response.data.status === 1) {
-          console.log(response.data.data);
-          const fetchedData = response.data.data;
-          const firstElement = fetchedData.shift(); // Remove the first element
-          setData([...fetchedData, firstElement]); // Add the first element to the end
-          setFilteredData([...fetchedData, firstElement]); // Also update filtered data if needed
-        } else {
-          console.error("Error:", response.data.message);
-        }
-      })
-      .catch((error) => {
-        console.error("Error fetching nurses:", error);
-      });
+  const fetchNurseData = async () => {
+    try {
+      setLoading(true);
+      const response = await axios.get("http://localhost:9000/nurse");
+      setLoading(false);
+
+      if (response.data.status === 1) {
+        console.log(response.data.data);
+        const fetchedData = response.data.data;
+        const firstElement = fetchedData.shift(); // Remove the first element
+        setData([...fetchedData, firstElement]); // Add the first element to the end
+        setFilteredData([...fetchedData, firstElement]); // Also update filtered data if needed
+      } else {
+        console.error("Error:", response.data.message);
+      }
+    } catch (error) {
+      console.error("Error fetching nurses:", error);
+    }
   };
 
   const [filteredData, setFilteredData] = useState([]);
@@ -69,30 +68,6 @@ const NurseTable = () => {
     }));
   };
 
-  //   const handleAddRow = () => {
-  //     console.log("hsjfjsdsdhhjsh");
-  //     let newId = data.length + 1;
-
-  //     const newRowWithId = { ...newRow, Id: newId };
-
-  //     axios
-  //       .post("http://localhost:9000/nurse/add", newRowWithId)
-  //       .then((response) => {
-  //         setNewRow('');
-  //         if (response.data.status === 1) {
-  //           message.success("Nurse added successfully");
-
-  //           fetchNurseData();
-  //         } else {
-  //           message.error("Failed to add nurse");
-  //         }
-  //       })
-  //       .catch((error) => {
-  //         console.error("Error adding nurse:", error);
-  //         message.error("Failed to add nurse");
-  //       });
-  //   };
-
   const handleAddRow = async () => {
     console.log(newRow);
     console.log("hsjfjsdsdhhjsh");
@@ -117,61 +92,57 @@ const NurseTable = () => {
     }
   };
 
-  const handleInputBlur = (e, record, field) => {
-    const { value } = e.target;
-    const newData = [...data];
-    const index = newData.findIndex((item) => record.Id === item.Id);
+  const handleInputBlur = async (e, record, field) => {
+    try {
+      const { value } = e.target;
+      const newData = [...data];
+      const index = newData.findIndex((item) => record.Id === item.Id);
 
-    if (index > -1) {
-      newData[index][field] = value;
+      if (index > -1) {
+        newData[index][field] = value;
 
-      axios
-        .put(`http://localhost:9000/nurse/update`, {
+        await axios.put(`http://localhost:9000/nurse/update`, {
           id: record.Id,
           [field]: value,
-        })
-        .then((response) => {
-          if (response.data.status === 1) {
-            message.success("Nurse data updated successfully");
-            fetchNurseData();
-          } else {
-            message.error("Failed to update nurse data");
-          }
-        })
-        .catch((error) => {
-          console.error("Error updating nurse data:", error);
-          message.error("Failed to update nurse data");
         });
 
-      setData(newData);
+        setData(newData);
 
-      const filteredIndex = filteredData.findIndex(
-        (item) => record.Id === item.Id
-      );
-      if (filteredIndex > -1) {
-        const newFilteredData = [...filteredData];
-        newFilteredData[filteredIndex][field] = value;
-        setFilteredData(newFilteredData);
+        const filteredIndex = filteredData.findIndex(
+          (item) => record.Id === item.Id
+        );
+        if (filteredIndex > -1) {
+          const newFilteredData = [...filteredData];
+          newFilteredData[filteredIndex][field] = value;
+          setFilteredData(newFilteredData);
+        }
+
+        message.success("Nurse data updated successfully");
+        fetchNurseData();
       }
+    } catch (error) {
+      console.error("Error updating nurse data:", error);
+      message.error("Failed to update nurse data");
     }
   };
 
-  const handleRemove = (record) => {
-    console.log(record.Id);
-    axios
-      .delete(`http://localhost:9000/nurse/${record.Id}`)
-      .then((response) => {
-        if (response.data.status === 1) {
-          message.success("Nurse removed successfully");
-          fetchNurseData();
-        } else {
-          message.error("Failed to remove nurse");
-        }
-      })
-      .catch((error) => {
-        console.error("Error removing nurse:", error);
+  const handleRemove = async (record) => {
+    try {
+      console.log(record.Id);
+      const response = await axios.delete(
+        `http://localhost:9000/nurse/${record.Id}`
+      );
+
+      if (response.data.status === 1) {
+        message.success("Nurse removed successfully");
+        fetchNurseData();
+      } else {
         message.error("Failed to remove nurse");
-      });
+      }
+    } catch (error) {
+      console.error("Error removing nurse:", error);
+      message.error("Failed to remove nurse");
+    }
   };
 
   const columns = [
